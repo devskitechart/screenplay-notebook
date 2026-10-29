@@ -1,4 +1,4 @@
-name: Build My Installer
+name: Build Screenplay Notebook Installer
 on: [workflow_dispatch]
 
 jobs:
@@ -13,12 +13,11 @@ jobs:
       - name: Install Pake
         run: npm install -g pake-cli
 
-      - name: Build Installer
-        # CHANGE THE URL AND NAME BELOW TO MATCH YOUR APP
-        run: pake https://example.com --name "MyCustomApp" --targets msi
+      - name: Build Free Windows Installer
+        run: pake https://classy-kangaroo-93af16.netlify.app/ --name "Screenplay Notebook" --author "Devski" --targets msi
 
-      - name: Upload Installer Artifact
+      - name: Upload Installer File
         uses: actions/upload-artifact@v4
         with:
-          name: windows-installer
+          name: Screenplay-Notebook-Installer
           path: "*.msi"
