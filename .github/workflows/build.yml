@@ -5,16 +5,22 @@ jobs:
   build:
     runs-on: windows-latest
     steps:
+      - name: Check out Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Rust (Required for Pake)
+        uses: actions-rust-lang/setup-rust-toolchain@v1
+
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 18
+          node-version: 22
 
       - name: Install Pake
         run: npm install -g pake-cli
 
-      - name: Build Free Windows Installer
-        run: pake https://classy-kangaroo-93af16.netlify.app/ --name "Screenplay Notebook" --author "Devski" --targets msi
+      - name: Build Free Windows Installer with Icon
+        run: pake https://netlify.app --name "Screenplay Notebook" --icon icon.ico --targets msi
 
       - name: Upload Installer File
         uses: actions/upload-artifact@v4
