@@ -8,23 +8,57 @@ jobs:
       - name: Check out Repository
         uses: actions/checkout@v4
 
-      - name: Set up Rust (Required for Pake)
-        uses: actions-rust-lang/setup-rust-toolchain@v1
-
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: 22
+          node-version: 20
 
-      - name: Install Pake
-        run: npm install -g pake-cli
+      - name: Install Dependencies & Tools
+        run: |
+          npm install electron@latest --save-dev
+          npm install electron-packager@latest -g
 
-      - name: Build Local Free Windows Installer
-        # Points directly to your index.html and icon.ico files out in the open
-        run: pake ./index.html --name "Screenplay Notebook" --icon icon.ico --targets msi
+      - name: Build Windows Executable Bundle
+        run: |
+          electron-packager . "Screenplay Notebook" --platform=win32 --arch=x64 --icon=icon.ico --app-version="1.0.0" --win32metadata.CompanyName="Devski" --win32metadata.FileDescription="Screenplay Notebook" --win32metadata.ProductName="Screenplay Notebook" --overwrite
+
+      - name: Install Inno Setup compiler
+        run: choco install innosetup -y
+
+      - name: Create Installer Configuration Script
+        run: |
+          $iss = @"
+          [Setup]
+          AppName=Screenplay Notebook
+          AppVersion=1.0.0
+          AppPublisher=Devski
+          DefaultDirName={autopf}\Screenplay Notebook
+          DefaultGroupName=Screenplay Notebook
+          OutputDir=.\dist
+          OutputBaseFilename=Screenplay-Notebook-Setup
+          SetupIconFile=icon.ico
+          Compression=lzma
+          SolidCompression=yes
+          WizardStyle=modern
+
+          [Files]
+          Source: "Screenplay Notebook-win32-x64\*"; DestDir: "{app}"; Flags: recursesubdirs createallsubdirs
+
+          [Icons]
+          Name: "{group}\Screenplay Notebook"; Filename: "{app}\Screenplay Notebook.exe"
+          Name: "{autodesktop}\Screenplay Notebook"; Filename: "{app}\Screenplay Notebook.exe"; Tasks: desktopicon
+
+          [Tasks]
+          Name: "desktopicon"; Description: "{cm:CreateDesktopIcon}"; GroupDescription: "{cm:AdditionalIcons}"; Flags: unchecked
+          "@
+          Set-Content -Path installer.iss -Value $iss
+
+      - name: Compile Setup Installer
+        run: |
+          & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
       - name: Upload Installer File
         uses: actions/upload-artifact@v4
         with:
-          name: Screenplay-Notebook-Local-Installer
-          path: "*.msi"
+          name: Screenplay-Notebook-Devski-Installer
+          path: dist/*.exe
