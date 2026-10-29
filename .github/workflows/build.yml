@@ -19,11 +19,12 @@ jobs:
       - name: Install Pake
         run: npm install -g pake-cli
 
-      - name: Build Free Windows Installer with Icon
-        run: pake https://netlify.app --name "Screenplay Notebook" --icon icon.ico --targets msi
+      - name: Build Local Free Windows Installer
+        # Points directly to your index.html and icon.ico files out in the open
+        run: pake ./index.html --name "Screenplay Notebook" --icon icon.ico --targets msi
 
       - name: Upload Installer File
         uses: actions/upload-artifact@v4
         with:
-          name: Screenplay-Notebook-Installer
+          name: Screenplay-Notebook-Local-Installer
           path: "*.msi"
