@@ -13,19 +13,19 @@ jobs:
         with:
           node-version: 20
 
-      - name: Install Dependencies & Tools
+      - name: Install Electron Packaging Tools
         run: |
           npm install electron@latest --save-dev
           npm install electron-packager@latest -g
 
-      - name: Build Windows Executable Bundle
+      - name: Compile Devski Executable Bundle
         run: |
           electron-packager . "Screenplay Notebook" --platform=win32 --arch=x64 --icon=icon.ico --app-version="1.0.0" --win32metadata.CompanyName="Devski" --win32metadata.FileDescription="Screenplay Notebook" --win32metadata.ProductName="Screenplay Notebook" --overwrite
 
       - name: Install Inno Setup compiler
         run: choco install innosetup -y
 
-      - name: Create Installer Configuration Script
+      - name: Generate Custom Devski Setup File
         run: |
           $iss = @"
           [Setup]
@@ -53,11 +53,11 @@ jobs:
           "@
           Set-Content -Path installer.iss -Value $iss
 
-      - name: Compile Setup Installer
+      - name: Run Compiler
         run: |
           & "C:\Program Files (x86)\Inno Setup 6\ISCC.exe" installer.iss
 
-      - name: Upload Installer File
+      - name: Upload Finished Installer
         uses: actions/upload-artifact@v4
         with:
           name: Screenplay-Notebook-Devski-Installer
